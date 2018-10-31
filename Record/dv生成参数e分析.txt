@@ -1,0 +1,36 @@
+dv生成参数e分析
+
+browserInfo: "1,2,69",
+flashInfo: undefined,
+keyDown: "18,0,null,24677|103,0,TANGRAM__PSP_4__password,679585|121,0,TANGRAM__PSP_4__password,806326|103,0,TANGRAM__PSP_4__password,1234880|103,0,TANGRAM__PSP_4__password,1677298|",
+loadTime: 1536779275.893,
+location: "https://pan.baidu.com/,undefined",
+mouseDown: "",
+mouseMove: "920,191,27803,|1103,438,107318,TANGRAM__PSP_4__submit|1202,354,159751,TANGRAM__PSP_4__password|1208,381,197769,TANGRAM__PSP_4__form|1181,406,802064,TANGRAM__PSP_4__form|",
+screenInfo: "0,-1600,1583,916,1600,900,1600,1600,900",
+token: "tk0.93054710971651681536779275893",
+version: 26,
+
+//初始状态
+browserInfo: "1,2,69"
+flashInfo: undefined
+keyDown: ""
+loadTime: 1536780985.54
+location: "https://pan.baidu.com/,undefined"
+mouseDown: ""
+mouseMove: ""
+screenInfo: "0,-1600,1583,916,1600,900,1600,1600,900"
+token: "tk0.35498904594787151536780985540"
+version: 26
+
+
+browserInfo: "1,2,69"
+flashInfo: undefined
+keyDown: ""
+loadTime: 1536780985.54
+location: "https://pan.baidu.com/,undefined"
+mouseDown: ""
+mouseMove: "1072,622,22243,|"
+screenInfo: "0,-1600,1583,916,1600,900,1600,1600,900"
+token: "tk0.35498904594787151536780985540"
+version: 26
