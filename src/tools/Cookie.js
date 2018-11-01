@@ -65,7 +65,7 @@ export default class Cookie {
    * 导出cookie字符串
    *
    * @param {[String]]} arr 需要导出cookie的key数组
-   * @returns
+   * @returns {String} 返回cookie字符串
    * @memberof Cookie
    */
 
@@ -82,7 +82,7 @@ export default class Cookie {
   /**
    * 导出所有cookie
    *
-   * @returns [String] 返回字符串数组
+   * @returns {[String]} 返回字符串数组
    * @memberof Cookie
    */
 

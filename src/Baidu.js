@@ -26,19 +26,20 @@ import login from './login'
  */
 
 class Baidu {
-  // constructor() {
-  //   this.init()
-  // }
+  constructor() {
+    this.cookie = new Cookie()
+  }
 
   /**
-   * 参数初始化
+   * 登陆参数初始化
    *
    * @returns
    * @memberof Baidu
    */
 
-  init() {
+  init = () => {
     this.isInit = false
+    this.isLogin = false
     this.cookie = new Cookie()
     this.gid = getGid()
     this.dv = getdv()
@@ -47,7 +48,7 @@ class Baidu {
     return getBaiduId()
       .then(baiduIdCookieStr => {
         cookie.update(baiduIdCookieStr)
-        return getToken({ gid, Cookie: cookie.getStr([`BAIDUID`]) })
+        return getToken({ gid, Cookie: cookie.getStr(['BAIDUID']) })
       })
       .then(token => {
         this.token = token
@@ -66,7 +67,12 @@ class Baidu {
       })
   }
 
-  logincheck(username) {
+  /**
+   * 检查是否需要验证码
+   *
+   * @memberof Baidu
+   */
+  logincheck = username => {
     const { token, dv, cookie, traceid } = this
     this.username = username
     return logincheck({
@@ -88,7 +94,12 @@ class Baidu {
     })
   }
 
-  genimage() {
+  /**
+   * 下载验证码
+   *
+   * @memberof Baidu
+   */
+  genimage = () => {
     const { cookie, codestring } = this
     return genimage({ codestring, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }).then(
       image =>
@@ -101,6 +112,7 @@ class Baidu {
         })
     )
   }
+
   /**
    * 登陆
    *
@@ -110,7 +122,7 @@ class Baidu {
    * @memberof Baidu
    */
 
-  login(password, verifycode = '') {
+  login = (password, verifycode = '') => {
     const {
       dv,
       gid,
@@ -124,7 +136,7 @@ class Baidu {
       tempTime,
       isInit
     } = this
-    this.password = password
+    // this.password = password
     const promis = Promise.resolve(1)
     if (codestring !== '') {
       promis.then(() =>
@@ -177,46 +189,108 @@ class Baidu {
       .then(() =>
         getRedirectUrl({
           Cookie: cookie.getStr([
-            `BAIDUID`,
-            `BDUSS`,
-            `HISTORY`,
-            `PTOKEN`,
-            `SAVEUSERID`,
-            `STOKEN`,
-            `UBI`
+            'BAIDUID',
+            'BDUSS',
+            'HISTORY',
+            'PTOKEN',
+            'SAVEUSERID',
+            'STOKEN',
+            'UBI'
           ])
         }).then(({ redirectUrl }) =>
-          updateStoken({ redirectUrl, Cookie: cookie.getStr([`BAIDUID`, `BDUSS`]) }).then(
+          updateStoken({ redirectUrl, Cookie: cookie.getStr(['BAIDUID', 'BDUSS']) }).then(
             STOKEN => {
               cookie.update(STOKEN)
             }
           )
         )
       )
-      .then(() => getUserInfo({ Cookie: cookie.getStr([`BAIDUID`, `BDUSS`, `STOKEN`]) }))
+      .then(() => {
+        this.isLogin = true
+      })
+  }
+
+  /**
+   * 获取用户信息
+   *
+   * @memberof Baidu
+   */
+  getUserInfo = () =>
+    getUserInfo({ Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']) }).then(body => {
+      if (body.errno === 0) {
+        this.isLogin = true
+      } else {
+        console.log('百度账号未登录')
+        this.isLogin = false
+      }
+      return body
+    })
+
+  exprotBaidu = () => ({ cookies: this.cookie.getArray() })
+
+  importBaidu = ({ cookies }) => {
+    this.cookie.update(cookies)
+    return this.getUserInfo()
   }
 
   // TODO 批量获取文件列表
-  async list(path) {
-    const arr = []
-    let page = 1
-    while (true) {
-      let arrTemp = []
-
-      await getList(path, page, this).then(body => {
-        arrTemp = body.list
-      })
-      arr.push(...arrTemp)
-
-      if (arrTemp.length < 1000) {
-        break
+  list = ({ directory, page = 1, num = 1000 }) =>
+    getList({
+      path: directory,
+      page,
+      Cookie: this.cookie.getStr([`BDUSS`, `STOKEN`]),
+      num
+    }).then(body => {
+      const fileList = body.list
+      if (fileList.length < num) {
+        return fileList
       }
-      page += 1
-    }
-    for (const c of arr.filter(a => a.isdir === 1)) {
-      c.children = await this.list(c.path)
-    }
-    return arr
+      return this.list({ directory, page: page + 1 }).then(list => {
+        fileList.push(...list)
+        return fileList
+      })
+    })
+
+  allList = ({ directory }) => {
+    const { list, allList } = this
+    const thread = 20
+    return list({ directory }).then(fileList =>
+      fileList
+        .filter(f => f.isdir === 1)
+        .reduce(
+          (a, b) => {
+            if (a[a.length - 1].length >= thread) {
+              a.push([])
+            }
+            a[a.length - 1].push(b)
+            return a
+          },
+          [[]]
+        )
+        .reduce(
+          (promise, directorys) =>
+            promise.then(values =>
+              Promise.all(
+                directorys.map(dir =>
+                  allList({ directory: dir.path }).then(v => ({
+                    ...dir,
+                    children: v
+                  }))
+                )
+              ).then(v => [...values, ...v])
+            ),
+          // promise.then(values =>
+          //   allList({ directory: dir.path })
+          //     .then(v => ({
+          //       ...dir,
+          //       children: v
+          //     }))
+          //     .then(v => [...values, v])
+          // )
+          Promise.resolve([])
+        )
+        .then(values => [...values, ...fileList.filter(f => f.isdir !== 1)])
+    )
   }
 }
 export default Baidu
