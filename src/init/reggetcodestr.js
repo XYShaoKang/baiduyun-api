@@ -1,5 +1,4 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
+import { get } from '../tools/http'
 
 /**
  * 重新获取验证码图像
@@ -12,8 +11,7 @@ import { URLSearchParams } from 'url'
  * @returns {Promise<errInfo:{no:String},data:{codeString:String,vcodetype:String},traceid:String>} Promise返回包含获取验证码图像需要的参数
  */
 const reggetcodestr = ({ token, Cookie, traceid, vcodetype }) => {
-  const params = new URLSearchParams()
-  const paramBody = {
+  const opt = {
     token,
     tpl: 'netdisk',
     subpro: 'netdisk_web',
@@ -25,16 +23,9 @@ const reggetcodestr = ({ token, Cookie, traceid, vcodetype }) => {
     traceid,
     vcodetype
   }
-  Object.keys(paramBody).forEach(key => {
-    params.append(key, paramBody[key])
-  })
-  const url = `https://passport.baidu.com/v2/?reggetcodestr&${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  })
-    .then(res => res.json())
+  const url = `https://passport.baidu.com/v2/?reggetcodestr&$`
+  return get({ url, Cookie, opt })
+    .then(({ res }) => res.json())
     .then(json => ({ ...json }))
 }
 

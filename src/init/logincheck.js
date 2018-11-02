@@ -1,6 +1,4 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 
 /**
  * 检查是否需要验证码,更新ubi
@@ -15,8 +13,7 @@ import { InitException } from '../tools/error'
  */
 const logincheck = ({ token, username, dv, Cookie, traceid }) => {
   let ubi = ''
-  const params = new URLSearchParams()
-  const paramBody = {
+  const opt = {
     token,
     tpl: 'netdisk',
     subpro: 'netdisk_web',
@@ -28,22 +25,14 @@ const logincheck = ({ token, username, dv, Cookie, traceid }) => {
     dv,
     traceid
   }
-
-  Object.keys(paramBody).forEach(key => {
-    params.append(key, paramBody[key])
+  const url = `https://passport.baidu.com/v2/api/?logincheck&`
+  return get({
+    url,
+    Cookie,
+    opt
   })
-  const url = `https://passport.baidu.com/v2/api/?logincheck&${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  })
-    .then(res => {
-      const reCookie = res.headers.raw()['set-cookie']
-      ubi = reCookie ? reCookie.map(c => c.split(';')[0]).find(c => c.includes('UBI')) : ''
-      if (!reCookie || !ubi) {
-        throw new InitException('not find ubi', Error())
-      }
+    .then(({ res, cookies }) => {
+      ubi = cookies.map(c => c.split(';')[0]).find(c => c.includes('UBI'))
       return res.json()
     })
     .then(json => ({ ubi, ...json }))

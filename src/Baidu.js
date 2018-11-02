@@ -251,12 +251,13 @@ class Baidu {
       })
     })
 
-  allList = ({ directory }) => {
+  allList = async ({ directory }) => {
     const { list, allList } = this
-    const thread = 20
-    return list({ directory }).then(fileList =>
-      fileList
-        .filter(f => f.isdir === 1)
+    const thread = 50
+    const fileList = await list({ directory })
+    let waitObtainDir = fileList.filter(f => f.isdir === 1)
+    while (true) {
+      waitObtainDir = await waitObtainDir
         .reduce(
           (a, b) => {
             if (a[a.length - 1].length >= thread) {
@@ -269,28 +270,43 @@ class Baidu {
         )
         .reduce(
           (promise, directorys) =>
-            promise.then(values =>
-              Promise.all(
-                directorys.map(dir =>
-                  allList({ directory: dir.path }).then(v => ({
-                    ...dir,
-                    children: v
-                  }))
+            promise.then(
+              values =>
+                Promise.all(
+                  directorys.map(dir =>
+                    // console.log('dir', dir)
+                    list({ directory: dir.path }).then(v => {
+                      dir.children = v
+                      return v
+                    })
+                  )
                 )
-              ).then(v => [...values, ...v])
+                  .then(v => [
+                    ...values,
+                    ...v.reduce((a, b) => {
+                      a.push(...b)
+                      return a
+                    }, [])
+                  ])
+                  .then(v => v.filter(f => f.isdir === 1))
+              // .then(
+              //   v =>
+              //     new Promise(resolve => {
+              //       setTimeout(() => {
+              //         console.log('===============')
+              //         resolve(v.filter(f => f.isdir === 1))
+              //       }, 1)
+              //     })
+              // )
             ),
-          // promise.then(values =>
-          //   allList({ directory: dir.path })
-          //     .then(v => ({
-          //       ...dir,
-          //       children: v
-          //     }))
-          //     .then(v => [...values, v])
-          // )
           Promise.resolve([])
         )
-        .then(values => [...values, ...fileList.filter(f => f.isdir !== 1)])
-    )
+      if (waitObtainDir.length === 0) {
+        break
+      }
+      console.log(waitObtainDir.length)
+    }
+    return fileList
   }
 }
 export default Baidu

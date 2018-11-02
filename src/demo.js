@@ -6,6 +6,7 @@ import Baidu from './Baidu'
 const baidu = new Baidu()
 
 const jsonPath = path.join(__dirname, '../', `./cache/baidu.json`)
+
 let promises = Promise.resolve()
 if (fs.existsSync(jsonPath)) {
   promises = promises.then(() => {
@@ -62,7 +63,7 @@ if (fs.existsSync(jsonPath)) {
           })
         })
     )
-    .then(({ verifycode, password }) => login(password, verifycode))
+    .then(({ password, verifycode }) => login(password, verifycode))
     .then(() => getUserInfo())
     .then(userinfo => console.log(`用户 ${userinfo.records[0].uname} 登陆成功`))
     .then(() => {
@@ -72,14 +73,26 @@ if (fs.existsSync(jsonPath)) {
     })
 }
 function getListLength(list) {
-  return list.length + list.reduce((a, b) => a + (b.isdir === 1 ? getListLength(b.children) : 0), 0)
+  return (
+    list.length +
+    list
+      .filter(d => d.isdir === 1)
+      .reduce((a, b) => a + (b.children ? getListLength(b.children) : 0), 0)
+  )
+}
+function getDirLength(list) {
+  const dirs = list.filter(d => d.isdir === 1)
+
+  return dirs.length + dirs.reduce((a, b) => a + (b.children ? getDirLength(b.children) : 0), 0)
 }
 promises
   .then(async () => {
-    const list = await baidu.allList({ directory: '/嵌入式资源' })
+    // console.log((await baidu.list({directory: '/'})).map(d=>d.path))
+    const list = await baidu.allList({ directory: '/' })
 
     fs.writeFileSync(path.join(__dirname, '../', `./cache/list.json`), JSON.stringify(list))
     console.log(getListLength(list))
+    console.log(getDirLength(list))
     console.log('获取完成')
   })
   // .then(console.log)

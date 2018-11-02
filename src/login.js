@@ -1,7 +1,5 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
 import NodeRSA from 'node-rsa'
-import { InitException } from './tools/error'
+import { post } from './tools/http'
 
 /**
  * 用公钥加密密码
@@ -48,9 +46,8 @@ const login = ({
   verifycode,
   traceid
 }) => {
-  const params = new URLSearchParams()
   let tempCookie = []
-  const paramBody = {
+  const opt = {
     staticpage: 'https://pan.baidu.com/res/static/thirdparty/pass_v3_jump.html',
     charset: 'UTF-8',
     token,
@@ -78,21 +75,14 @@ const login = ({
     crypttype: '12',
     traceid
   }
-  Object.keys(paramBody).forEach(key => {
-    const element = paramBody[key]
-    params.append(key, element)
+  return post({
+    url: 'https://passport.baidu.com/v2/api/?login',
+    Cookie,
+    opt
   })
-  return fetch('https://passport.baidu.com/v2/api/?login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Cookie
-    },
-    body: params
-  })
-    .then(res => {
-      const cookies = res.headers.raw()['set-cookie']
-      tempCookie = cookies ? cookies.map(c => c.split(';')[0]) : []
+    .then(({ res, cookies }) => {
+      console.log(cookies)
+      tempCookie = cookies.map(c => c.split(';')[0])
       return res.text()
     })
     .then(body => {
@@ -102,8 +92,6 @@ const login = ({
         console.log('登陆成功')
         return { cookie: tempCookie }
       }
-      throw new InitException('登陆失败', err)
-      // return { err: 1 }
     })
 }
 export default login

@@ -1,5 +1,4 @@
-import fetch from 'node-fetch'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 
 /**
  * 获取包含BdiduId的cookie
@@ -8,14 +7,7 @@ import { InitException } from '../tools/error'
  */
 
 const getBaiduId = () =>
-  fetch('http://pan.baidu.com/').then(res => {
-    const baiduIdCookieStr = res.headers
-      .raw()
-      ['set-cookie'].map(c => c.split(';')[0])
-      .find(c => c.includes('BAIDUID'))
-    if (!baiduIdCookieStr) {
-      throw new InitException('not find BAIDUID', Error())
-    }
-    return baiduIdCookieStr
-  })
+  get({ url: 'http://pan.baidu.com/' }).then(({ cookies }) =>
+    cookies.map(c => c.split(';')[0]).find(c => c.includes('BAIDUID'))
+  )
 export default getBaiduId

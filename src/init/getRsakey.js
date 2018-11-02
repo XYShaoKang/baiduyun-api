@@ -1,6 +1,4 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 
 /**
  * 获取公钥和密钥
@@ -12,8 +10,7 @@ import { InitException } from '../tools/error'
  * @returns {Promise<{rsakey:String,pubkey:String}>} Promise返回包含rsakey,pubkey的对象
  */
 const getRsakey = ({ token, gid, Cookie }) => {
-  const params = new URLSearchParams()
-  const paramBody = {
+  const opt = {
     token,
     tpl: 'netdisk',
     subpro: 'netdisk_web',
@@ -22,24 +19,11 @@ const getRsakey = ({ token, gid, Cookie }) => {
     gid,
     loginversion: 'v4'
   }
-  Object.keys(paramBody).forEach(key => {
-    params.append(key, paramBody[key])
-  })
-  const url = `https://passport.baidu.com/v2/getpublickey?${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie,
-      Referer: 'https://pan.baidu.com/'
-    }
-  })
-    .then(res => res.text())
+  const url = `https://passport.baidu.com/v2/getpublickey?`
+  return get({ url, Cookie, opt })
+    .then(({ res }) => res.text())
     .then(body => {
-      // const json = JSON.parse(body.replace(/'/g, '"'))
-      //   const rsakey = json.key
       const { pubkey, key: rsakey, traceid } = JSON.parse(body.replace(/'/g, '"'))
-      if (!pubkey || !rsakey) {
-        throw new InitException('not find pubkey or rsakey', Error())
-      }
       return { rsakey, pubkey, traceid }
     })
 }

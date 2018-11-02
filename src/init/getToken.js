@@ -1,5 +1,4 @@
-import fetch from 'node-fetch'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 
 /**
  * 获取token
@@ -11,20 +10,27 @@ import { InitException } from '../tools/error'
  */
 
 const getToken = ({ gid, Cookie }) => {
-  const url = `https://passport.baidu.com/v2/api/?getapi&tpl=netdisk&subpro=netdisk_web&apiver=v3&tt=${new Date().valueOf()}&class=login&gid=${gid}&loginversion=v4&logintype=basicLogin`
-  return fetch(url, {
-    headers: {
-      Cookie
+  const url = `https://passport.baidu.com/v2/api/?getapi&`
+  return get({
+    url,
+    Cookie,
+    opt: {
+      tpl: 'netdisk',
+      subpro: 'netdisk_web',
+      apiver: 'v3',
+      tt: new Date().valueOf(),
+      class: 'login',
+      gid,
+      loginversion: 'v4',
+      logintype: 'basicLogin'
     }
   })
-    .then(res => res.text())
+    .then(({ res }) => res.text())
     .then(body => {
       const {
         data: { token }
       } = JSON.parse(body.replace(/'/g, '"'))
-      if (!token) {
-        throw new InitException('not find token', Error())
-      }
+      console.log(token)
       return token
     })
 }

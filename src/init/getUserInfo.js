@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import { get } from '../tools/http'
 
 /**
  * 获取百度账户信息
@@ -9,12 +9,8 @@ import fetch from 'node-fetch'
  */
 const getUserInfo = ({ Cookie }) => {
   const url = `https://pan.baidu.com/api/user/getinfo?need_selfinfo=1`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  })
-    .then(res => res.json())
+  return get({ url, Cookie })
+    .then(({ res }) => res.json())
     .then(body => body)
 }
 export default getUserInfo

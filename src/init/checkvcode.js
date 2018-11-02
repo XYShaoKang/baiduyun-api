@@ -1,6 +1,4 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 
 /**
  * 查询验证码是否输入正确
@@ -14,8 +12,7 @@ import { InitException } from '../tools/error'
  * @returns {Promise} Promise
  */
 const checkvcode = ({ codestring, token, verifycode, Cookie, traceid }) => {
-  const params = new URLSearchParams()
-  const paramBody = {
+  const opt = {
     token,
     tpl: 'netdisk',
     subpro: 'netdisk_web',
@@ -26,22 +23,12 @@ const checkvcode = ({ codestring, token, verifycode, Cookie, traceid }) => {
     codestring,
     traceid
   }
-
-  Object.keys(paramBody).forEach(key => {
-    params.append(key, paramBody[key])
-  })
-  const url = `https://passport.baidu.com/v2/?checkvcode&${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  })
-    .then(res => res.json())
+  const url = `https://passport.baidu.com/v2/?checkvcode&`
+  return get({ url, Cookie, opt })
+    .then(({ res }) => res.json())
     .then(json => {
       if (json.errInfo.no === '0') {
         console.log('验证成功')
-      } else {
-        throw new InitException(`验证错误:${json.errInfo.msg}`, Error())
       }
     })
 }

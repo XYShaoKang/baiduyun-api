@@ -1,5 +1,4 @@
-import fetch from 'node-fetch'
-import fs from 'fs'
+import { get } from '../tools/http'
 
 /**
  * 下载验证码图像
@@ -11,20 +10,7 @@ import fs from 'fs'
  */
 const genimage = ({ codestring, Cookie }) => {
   const url = `https://passport.baidu.com/cgi-bin/genimage?${codestring}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  }).then(
-    image =>
-      // new Promise(resolve => {
-      //   image.body.pipe(fs.createWriteStream('./cache/test.png')).on('close', () => {
-      //     console.log('image downloaded')
-      //     resolve()
-      //   })
-      // })
-      image.body
-  )
+  return get({ url, Cookie }).then(({ res }) => res.body)
 }
 
 export default genimage

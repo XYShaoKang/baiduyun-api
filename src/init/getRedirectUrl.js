@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import { get } from '../tools/http'
 
 /**
  * 获取重定向地址
@@ -9,11 +9,8 @@ import fetch from 'node-fetch'
  */
 const getRedirectUrl = ({ Cookie }) => {
   const url = `https://passport.baidu.com/v3/login/api/auth/?return_type=5&tpl=netdisk&u=https%3A%2F%2Fpan.baidu.com%2Fdisk%2Fhome`
-  return fetch(url, {
-    headers: {
-      Cookie
-    },
-    redirect: 'manual'
-  }).then(res => ({ redirectUrl: res.headers.raw().location[0] }))
+  return get({ url, Cookie, redirect: 'manual' }).then(({ res }) => ({
+    redirectUrl: res.headers.raw().location[0]
+  }))
 }
 export default getRedirectUrl

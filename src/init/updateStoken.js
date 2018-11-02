@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import { get } from '../tools/http'
 
 /**
  * 更新登陆cookie
@@ -9,18 +9,8 @@ import fetch from 'node-fetch'
  * @returns {Promise<String>} Promise返回key为STOKEN的cookie字符串
  */
 const updateStoken = ({ redirectUrl, Cookie }) =>
-  fetch(redirectUrl, {
-    headers: {
-      Cookie
-    },
-    redirect: 'manual'
-  }).then(res =>
-    // cookie.update(res.headers.raw()['set-cookie'].map(c => c.split(';')[0]))
-    // return res.headers.raw().location[0]
-    res.headers
-      .raw()
-      ['set-cookie'].map(c => c.split(';')[0])
-      .find(c => c.includes('STOKEN'))
+  get({ url: redirectUrl, Cookie, redirect: 'manual' }).then(({ cookies }) =>
+    cookies.map(c => c.split(';')[0]).find(c => c.includes('STOKEN'))
   )
 
 export default updateStoken

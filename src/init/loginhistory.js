@@ -1,6 +1,4 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
-import { InitException } from '../tools/error'
+import { get } from '../tools/http'
 /**
  * 获取ubi
  *
@@ -12,8 +10,7 @@ import { InitException } from '../tools/error'
  */
 
 const loginhistory = ({ token, gid, Cookie }) => {
-  const params = new URLSearchParams()
-  const paramBody = {
+  const opt = {
     token,
     tpl: 'netdisk',
     subpro: 'netdisk_web',
@@ -22,23 +19,11 @@ const loginhistory = ({ token, gid, Cookie }) => {
     gid,
     loginversion: 'v4'
   }
-  Object.keys(paramBody).forEach(key => {
-    params.append(key, paramBody[key])
-  })
-  const url = `https://passport.baidu.com/v2/api/?loginhistory&${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  }).then(res => {
-    const ubi = res.headers
-      .raw()
-      ['set-cookie'].map(c => c.split(';')[0])
-      .find(c => c.includes('UBI'))
-    if (!ubi) {
-      throw new InitException('not find ubi', Error())
-    }
-    return ubi
-  })
+  const url = `https://passport.baidu.com/v2/api/?loginhistory&`
+  return get({
+    url,
+    Cookie,
+    opt
+  }).then(({ cookies }) => cookies.map(c => c.split(';')[0]).find(c => c.includes('UBI')))
 }
 export default loginhistory

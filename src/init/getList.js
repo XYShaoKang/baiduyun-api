@@ -1,26 +1,16 @@
-import fetch from 'node-fetch'
-import { URLSearchParams } from 'url'
+import { get } from '../tools/http'
 
 const getList = ({ path, page, Cookie, num = 1000 }) => {
-  const params = new URLSearchParams()
-  const option = {
+  const opt = {
     dir: path,
     order: 'name',
     desc: 1,
     page,
     num
   }
-  Object.keys(option).forEach(key => {
-    const element = option[key]
-    params.append(key, element)
-  })
-  const url = `https://pan.baidu.com/api/list?${params.toString()}`
-  return fetch(url, {
-    headers: {
-      Cookie
-    }
-  })
-    .then(res => res.json())
+  const url = `https://pan.baidu.com/api/list?`
+  return get({ url, Cookie, opt })
+    .then(({ res }) => res.json())
     .then(body => {
       if (body.errno === 31034) {
         console.log(31034, path)
