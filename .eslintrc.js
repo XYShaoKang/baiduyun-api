@@ -16,6 +16,7 @@ module.exports = {
     'babel/new-cap': 1,
     'babel/no-invalid-this': 1,
     'babel/no-unused-expressions': 1,
-    'babel/valid-typeof': 1
+    'babel/valid-typeof': 1,
+    'no-await-in-loop': 0
   }
 }

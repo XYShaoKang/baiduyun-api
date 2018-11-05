@@ -1,11 +1,19 @@
 import readline from 'readline'
 import fs from 'fs'
 import path from 'path'
-import Baidu from './Baidu'
+import { Writable } from 'stream'
+import appRoot from 'app-root-path'
+import Baidu from '../src/Baidu'
 
 const baidu = new Baidu()
+// const root = path.join(path.dirname(require.main.filename), '../')
+const { path: root } = appRoot
+const cache = path.join(root, './examples/demo-cache')
+if (!fs.existsSync(cache)) {
+  fs.mkdirSync(cache)
+}
 
-const jsonPath = path.join(__dirname, '../', `./cache/baidu.json`)
+const jsonPath = path.join(cache, `./baidu.json`)
 
 let promises = Promise.resolve()
 if (fs.existsSync(jsonPath)) {
@@ -53,14 +61,24 @@ if (fs.existsSync(jsonPath)) {
     .then(
       verifycode =>
         new Promise(resolve => {
+          const mutableStdout = new Writable({
+            write(chunk, encoding, callback) {
+              if (!this.muted) process.stdout.write(chunk, encoding)
+              callback()
+            }
+          })
+          mutableStdout.muted = false
           const rl = readline.createInterface({
             input: process.stdin,
-            output: process.stdout
+            output: mutableStdout,
+            terminal: true
           })
           rl.question('请输入密码: ', password => {
             rl.close()
+            console.log('\n')
             resolve({ verifycode, password })
           })
+          mutableStdout.muted = true
         })
     )
     .then(({ password, verifycode }) => login(password, verifycode))
@@ -90,10 +108,10 @@ promises
     // console.log((await baidu.list({directory: '/'})).map(d=>d.path))
     const list = await baidu.allList({ directory: '/' })
 
-    fs.writeFileSync(path.join(__dirname, '../', `./cache/list.json`), JSON.stringify(list))
+    fs.writeFileSync(path.join(cache, `./list.json`), JSON.stringify(list))
     console.log(getListLength(list))
     console.log(getDirLength(list))
     console.log('获取完成')
   })
   // .then(console.log)
-  .catch(err => console.log(err))
+  .catch(err => console.log('err1', err))

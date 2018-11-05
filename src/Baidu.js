@@ -13,11 +13,11 @@ import {
   reggetcodestr,
   getRedirectUrl,
   updateStoken,
-  getUserInfo,
-  getList
-} from './init'
+  login
+} from './login'
 import Cookie from './tools/Cookie'
-import login from './login'
+import { getList } from './list'
+import { getUserInfo } from './userinfo'
 
 /**
  * Baidu类,包含初始化参数,登陆,
@@ -70,6 +70,8 @@ class Baidu {
   /**
    * 检查是否需要验证码
    *
+   * @param {String} username 登陆密码
+   *
    * @memberof Baidu
    */
   logincheck = username => {
@@ -116,8 +118,8 @@ class Baidu {
   /**
    * 登陆
    *
-   * @param {*} username 登陆用户名
-   * @param {*} password 登陆密码
+   * @param {String} password 登陆密码
+   * @param {String} verifycode 验证码
    * @returns {Promise} Promise返回个人信息
    * @memberof Baidu
    */
@@ -156,7 +158,7 @@ class Baidu {
             const timer = setInterval(() => {
               if (isInit) {
                 clearInterval(timer)
-                resolve(11000 - (Date.parse(new Date()) - tempTime))
+                resolve(10000 - (Date.parse(new Date()) - tempTime))
               }
             }, 100)
           })
@@ -233,7 +235,16 @@ class Baidu {
     return this.getUserInfo()
   }
 
-  // TODO 批量获取文件列表
+  /**
+   * 获取当前目录下的列表
+   *
+   * @param {Object} params - 参数
+   * @param {String} params.directory - 需要获取的路径
+   * @param {Number} params.page - 获取的页数
+   * @param {Number} params.num - 获取的数量
+   * @returns {Promise<[Object]>} Promise返回文件目录列表
+   * @memberof Baidu
+   */
   list = ({ directory, page = 1, num = 1000 }) =>
     getList({
       path: directory,
@@ -251,14 +262,24 @@ class Baidu {
       })
     })
 
+  // TODO 尝试优化遍历获取过程
+  /**
+   * 获取目录下的所有列表
+   *
+   * @param {Object} params - 参数
+   * @param {String} params.directory - 需要获取的路径
+   * @returns {Promise<[Object]>} Promise返回文件目录列表
+   * @memberof Baidu
+   */
   allList = async ({ directory }) => {
-    const { list, allList } = this
-    const thread = 50
+    const { list } = this
+    const thread = 30
     const fileList = await list({ directory })
     let waitObtainDir = fileList.filter(f => f.isdir === 1)
     while (true) {
       waitObtainDir = await waitObtainDir
         .reduce(
+          // 将需要获取列表的目录按照线程数分组
           (a, b) => {
             if (a[a.length - 1].length >= thread) {
               a.push([])
@@ -269,38 +290,30 @@ class Baidu {
           [[]]
         )
         .reduce(
+          // 按照分组用all方法调用list获取列表
           (promise, directorys) =>
-            promise.then(
-              values =>
-                Promise.all(
-                  directorys.map(dir =>
-                    // console.log('dir', dir)
-                    list({ directory: dir.path }).then(v => {
-                      dir.children = v
-                      return v
-                    })
-                  )
+            promise.then(values =>
+              Promise.all(
+                directorys.map(dir =>
+                  // console.log('dir', dir)
+                  list({ directory: dir.path }).then(v => {
+                    dir.children = v
+                    return v
+                  })
                 )
-                  .then(v => [
-                    ...values,
-                    ...v.reduce((a, b) => {
-                      a.push(...b)
-                      return a
-                    }, [])
-                  ])
-                  .then(v => v.filter(f => f.isdir === 1))
-              // .then(
-              //   v =>
-              //     new Promise(resolve => {
-              //       setTimeout(() => {
-              //         console.log('===============')
-              //         resolve(v.filter(f => f.isdir === 1))
-              //       }, 1)
-              //     })
-              // )
+              )
+                .then(v => [
+                  ...values,
+                  ...v.reduce((a, b) => {
+                    a.push(...b)
+                    return a
+                  }, [])
+                ])
+                .then(v => v.filter(f => f.isdir === 1))
             ),
           Promise.resolve([])
         )
+      // 判断是否已经没有需要获取的目录
       if (waitObtainDir.length === 0) {
         break
       }

@@ -1,5 +1,5 @@
 import NodeRSA from 'node-rsa'
-import { post } from './tools/http'
+import { post } from '../tools/http'
 
 /**
  * 用公钥加密密码
@@ -81,14 +81,12 @@ const login = ({
     opt
   })
     .then(({ res, cookies }) => {
-      console.log(cookies)
-      tempCookie = cookies.map(c => c.split(';')[0])
+      tempCookie = cookies ? cookies.map(c => c.split(';')[0]) : []
       return res.text()
     })
     .then(body => {
       const err = body.match(/err_no=([\d]+?)&/)
       if (err && err[1] === '0') {
-        // cookie.update(tempCookie)
         console.log('登陆成功')
         return { cookie: tempCookie }
       }

@@ -30,7 +30,6 @@ const getToken = ({ gid, Cookie }) => {
       const {
         data: { token }
       } = JSON.parse(body.replace(/'/g, '"'))
-      console.log(token)
       return token
     })
 }

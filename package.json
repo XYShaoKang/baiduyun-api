@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node ./src/demo.js",
+    "start": "babel-node ./examples/demo.js",
     "test": "jest",
     "compile": "babel src --out-dir .compiled --source-maps --watch"
   },
@@ -26,6 +26,7 @@
     "prettier": "^1.14.3"
   },
   "dependencies": {
+    "app-root-path": "^2.1.0",
     "node-fetch": "^2.2.0",
     "node-rsa": "^1.0.1"
   }
