@@ -1,4 +1,5 @@
-import Baidu from '../src/baidu'
+// import Baidu from '../src/baidu'
+const Baidu = require('../src/baidu').default
 
 describe('初始化测试', () => {
   const baidu = new Baidu()
