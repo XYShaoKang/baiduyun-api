@@ -34,17 +34,17 @@ describe('初始化测试', () => {
   })
 })
 
-describe('登陆测试', () => {
-  const baidu = new Baidu()
-  const qs = {
-    username: '',
-    password: ''
-  }
-  beforeEach(() => baidu.init())
-  test('test logincheck', async () => {
-    // 1602D74-9046-4303-A8EA-128DA1E7C1A2
-    await expect(baidu.logincheck(qs.username)).resolves.toBe(
-      `{"codestring": "", "traceid": "", "vcodetype": ""}`
-    )
-  })
-})
+// describe('登陆测试', () => {
+//   const baidu = new Baidu()
+//   const qs = {
+//     username: '',
+//     password: ''
+//   }
+//   beforeEach(() => baidu.init())
+//   test('test logincheck', async () => {
+//     // 1602D74-9046-4303-A8EA-128DA1E7C1A2
+//     await expect(baidu.logincheck(qs.username)).resolves.toBe(
+//       `{"codestring": "", "traceid": "", "vcodetype": ""}`
+//     )
+//   })
+// })
