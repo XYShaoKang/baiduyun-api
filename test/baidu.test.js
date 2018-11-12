@@ -1,6 +1,7 @@
 import Baidu from '../src/baidu'
 
 describe('初始化测试', () => {
+  jest.setTimeout(30000)
   const baidu = new Baidu()
   beforeEach(() => baidu.init())
   test('test getGid', () => {
