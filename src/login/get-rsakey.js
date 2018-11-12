@@ -22,9 +22,10 @@ const getRsakey = ({ token, gid, Cookie }) => {
   const url = `https://passport.baidu.com/v2/getpublickey?`
   return get({ url, Cookie, opt })
     .then(({ res }) => res.text())
-    .then(body => {
-      const { pubkey, key: rsakey, traceid } = JSON.parse(body.replace(/'/g, '"'))
-      return { rsakey, pubkey, traceid }
-    })
+    .then(
+      body => body
+      // const { pubkey, key: rsakey, traceid } = JSON.parse(body.replace(/'/g, '"'))
+      // return { rsakey, pubkey, traceid }
+    )
 }
 export default getRsakey

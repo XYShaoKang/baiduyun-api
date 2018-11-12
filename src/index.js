@@ -1,3 +1,4 @@
-import Baidu from './Baidu'
+import Baidu from './baidu'
 
-export default Baidu
+const baidu = new Baidu()
+export { baidu }

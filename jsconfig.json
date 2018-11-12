@@ -1,0 +1,5 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true // 禁用装饰器警告
+    }
+}

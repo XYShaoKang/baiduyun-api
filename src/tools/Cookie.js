@@ -76,6 +76,12 @@ export default class Cookie {
         .map(d => `${d.key}=${d.value}`)
         .join(';')
     }
+    if (arr && arr.constructor === String) {
+      return this.data
+        .filter(d => arr.includes(d.key))
+        .map(d => `${d.key}=${d.value}`)
+        .join(';')
+    }
     return this.data.map(d => `${d.key}=${d.value}`).join(';')
   }
 

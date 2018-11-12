@@ -3,9 +3,9 @@ import fs from 'fs'
 import path from 'path'
 import { Writable } from 'stream'
 import appRoot from 'app-root-path'
-import Baidu from '../src/Baidu'
+import { baidu } from '../src'
 
-const baidu = new Baidu()
+// const baidu = new Baidu()
 // const root = path.join(path.dirname(require.main.filename), '../')
 const { path: root } = appRoot
 const cache = path.join(root, './examples/demo-cache')
@@ -23,9 +23,9 @@ if (fs.existsSync(jsonPath)) {
     // baidu = JSON.parse(baiduJson)
   })
 } else {
-  const { init, logincheck, genimage, login, getUserInfo } = baidu
+  const { logincheck, genimage, login, getUserInfo, checkvcode } = baidu
   promises = promises
-    .then(() => init())
+    // .then(() => init())
     .then(
       () =>
         new Promise(resolve => {
@@ -42,19 +42,31 @@ if (fs.existsSync(jsonPath)) {
     .then(username => logincheck(username))
     .then(({ codestring }) => {
       if (codestring !== '') {
-        return genimage().then(
-          () =>
-            new Promise(resolve => {
-              const rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout
+        return genimage()
+          .then(
+            ({ image }) =>
+              new Promise(resolve => {
+                const imgPath = path.join(cache, './test.png')
+                image.pipe(fs.createWriteStream(imgPath)).on('close', () => {
+                  console.log(`验证码下载完毕,打开: ${imgPath} 查看验证码`)
+                  resolve()
+                })
               })
-              rl.question('请输入验证码: ', verifycode => {
-                rl.close()
-                resolve(verifycode)
+          )
+          .then(
+            () =>
+              new Promise(resolve => {
+                const rl = readline.createInterface({
+                  input: process.stdin,
+                  output: process.stdout
+                })
+                rl.question('请输入验证码: ', verifycode => {
+                  rl.close()
+                  resolve(verifycode)
+                })
               })
-            })
-        )
+          )
+          .then(verifycode => checkvcode(verifycode).then(() => verifycode))
       }
       return ''
     })
@@ -82,14 +94,35 @@ if (fs.existsSync(jsonPath)) {
         })
     )
     .then(({ password, verifycode }) => login(password, verifycode))
-    .then(() => getUserInfo())
-    .then(userinfo => console.log(`用户 ${userinfo.records[0].uname} 登陆成功`))
-    .then(() => {
-      fs.writeFileSync(jsonPath, JSON.stringify(baidu.exprotBaidu()))
-      // console.log(JSON.stringify(baidu))
-      // console.log(JSON.parse(JSON.stringify(baidu)).cookie.data)
-    })
+    .then(console.log)
+  // .then(() => getUserInfo())
+  // .then(userinfo => console.log(`用户 ${userinfo.records[0].uname} 登陆成功`))
+  // .then(() => {
+  //   fs.writeFileSync(jsonPath, JSON.stringify(baidu.exprotBaidu()))
+  //   // console.log(JSON.stringify(baidu))
+  //   // console.log(JSON.parse(JSON.stringify(baidu)).cookie.data)
+  // })
 }
+
+promises
+  // .then(async () => {
+  //   // console.log((await baidu.list({directory: '/'})).map(d=>d.path))
+  //   const list = await baidu.allList({ directory: '/' })
+
+  //   fs.writeFileSync(path.join(cache, `./list.json`), JSON.stringify(list))
+  //   console.log(getListLength(list))
+  //   console.log(getDirLength(list))
+  //   console.log('获取完成')
+  // })
+  // .then(console.log)
+  .catch(err => console.log('err1', err))
+
+/**
+ * 获取文件目录数量
+ *
+ * @param {*} list
+ * @returns
+ */
 function getListLength(list) {
   return (
     list.length +
@@ -98,20 +131,14 @@ function getListLength(list) {
       .reduce((a, b) => a + (b.children ? getListLength(b.children) : 0), 0)
   )
 }
+/**
+ * 获取文件数量
+ *
+ * @param {*} list
+ * @returns
+ */
 function getDirLength(list) {
   const dirs = list.filter(d => d.isdir === 1)
 
   return dirs.length + dirs.reduce((a, b) => a + (b.children ? getDirLength(b.children) : 0), 0)
 }
-promises
-  .then(async () => {
-    // console.log((await baidu.list({directory: '/'})).map(d=>d.path))
-    const list = await baidu.allList({ directory: '/' })
-
-    fs.writeFileSync(path.join(cache, `./list.json`), JSON.stringify(list))
-    console.log(getListLength(list))
-    console.log(getDirLength(list))
-    console.log('获取完成')
-  })
-  // .then(console.log)
-  .catch(err => console.log('err1', err))

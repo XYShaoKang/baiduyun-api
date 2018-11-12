@@ -84,12 +84,14 @@ const login = ({
       tempCookie = cookies ? cookies.map(c => c.split(';')[0]) : []
       return res.text()
     })
-    .then(body => {
-      const err = body.match(/err_no=([\d]+?)&/)
-      if (err && err[1] === '0') {
-        console.log('登陆成功')
-        return { cookie: tempCookie }
-      }
-    })
+    .then(
+      body => ({ cookie: tempCookie, body })
+      // const err = body.match(/err_no=([\d]+?)&/)
+      // if (err && err[1] === '0') {
+      //   console.log('登陆成功')
+      //   return { cookie: tempCookie }
+      // }
+      // throw new Error(`登陆错误,错误代码:${err[1]}`)
+    )
 }
 export default login

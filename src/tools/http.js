@@ -2,7 +2,6 @@ import fetch from 'node-fetch'
 import { URLSearchParams } from 'url'
 
 const errmiddleware = err => {
-  console.log(err)
   throw err
 }
 const get = ({ url, opt = {}, Cookie = '', redirect }) => {

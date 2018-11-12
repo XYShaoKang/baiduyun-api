@@ -1,3 +1,3 @@
-import getList from './getList'
+import getList from './get-list'
 
 export { getList }

@@ -1,5 +1,4 @@
-import fs from 'fs'
-import path from 'path'
+import { autobind } from 'core-decorators'
 import {
   getGid,
   getdv,
@@ -10,14 +9,41 @@ import {
   getRsakey,
   genimage,
   checkvcode,
+  // eslint-disable-next-line no-unused-vars
   reggetcodestr,
   getRedirectUrl,
   updateStoken,
   login
 } from './login'
-import Cookie from './tools/Cookie'
+import Cookie from './tools/cookie'
 import { getList } from './list'
 import { getUserInfo } from './userinfo'
+
+/**
+ * 检查是否初始化完成的装饰器
+ *
+ * @param {*} target
+ * @param {*} name
+ * @param {*} descriptor
+ * @returns
+ */
+function waitForInit(target, name, descriptor) {
+  const oldValue = descriptor.value
+  const value = function value(...args) {
+    return new Promise((resolve, reject) => {
+      const timer = setInterval(() => {
+        if (this.isInit) {
+          clearInterval(timer)
+          resolve()
+        }
+        if (this.initErr) {
+          reject(this.initErr)
+        }
+      }, 1000)
+    }).then(() => oldValue.apply(this, args))
+  }
+  return { ...descriptor, value }
+}
 
 /**
  * Baidu类,包含初始化参数,登陆,
@@ -27,7 +53,7 @@ import { getUserInfo } from './userinfo'
 
 class Baidu {
   constructor() {
-    this.cookie = new Cookie()
+    this.init()
   }
 
   /**
@@ -39,6 +65,7 @@ class Baidu {
 
   init = () => {
     this.isInit = false
+    this.initErr = null
     this.isLogin = false
     this.cookie = new Cookie()
     this.gid = getGid()
@@ -50,6 +77,16 @@ class Baidu {
         cookie.update(baiduIdCookieStr)
         return getToken({ gid, Cookie: cookie.getStr(['BAIDUID']) })
       })
+      .then(body => {
+        try {
+          const {
+            data: { token }
+          } = JSON.parse(body.replace(/'/g, '"'))
+          return token
+        } catch (error) {
+          throw new Error('解析token错误')
+        }
+      })
       .then(token => {
         this.token = token
         return token
@@ -59,13 +96,27 @@ class Baidu {
         cookie.update(ubiCookieStr)
       })
       .then(() => getRsakey({ token: this.token, gid, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }))
+      .then(body => {
+        try {
+          const { pubkey, key: rsakey, traceid } = JSON.parse(body.replace(/'/g, '"'))
+          return { rsakey, pubkey, traceid }
+        } catch (error) {
+          throw new Error('解析密钥错误')
+        }
+      })
       .then(({ rsakey, pubkey, traceid }) => {
         this.rsakey = rsakey
         this.pubkey = pubkey
         this.traceid = traceid
         this.isInit = true
       })
+      .catch(err => {
+        this.initErr = { type: 'initErr', err }
+        return err
+      })
   }
+
+  errmiddleware = (type, err) => ({ err: { type, err } })
 
   /**
    * 检查是否需要验证码
@@ -74,20 +125,22 @@ class Baidu {
    *
    * @memberof Baidu
    */
-  logincheck = username => {
-    const { token, dv, cookie, traceid } = this
+  @autobind
+  @waitForInit
+  logincheck(username) {
     this.username = username
+    const { token, dv, cookie, traceid } = this
     return logincheck({
       Cookie: cookie.getStr(['BAIDUID', 'UBI']),
       token,
       username,
       dv,
       traceid
-    }).then(({ ubi, data }) => {
+    }).then(({ ubi, data, traceid: traceidTemp }) => {
       cookie.update(ubi)
       this.codestring = data.codeString
       this.vcodetype = data.vcodetype
-      this.traceid = traceid
+      this.traceid = traceidTemp
       return {
         traceid,
         codestring: data.codeString,
@@ -103,18 +156,37 @@ class Baidu {
    */
   genimage = () => {
     const { cookie, codestring } = this
-    return genimage({ codestring, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }).then(
-      image =>
-        new Promise(resolve => {
-          const imgPath = path.join(__dirname, '../', './cache/test.png')
-          image.pipe(fs.createWriteStream(imgPath)).on('close', () => {
-            console.log(`验证码下载完毕,打开: ${imgPath} 查看验证码`)
-            resolve()
-          })
-        })
-    )
+    return genimage({ codestring, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }).then(image => ({
+      image
+    }))
   }
 
+  /**
+   * 测试验证码是否正确
+   *
+   * @memberof Baidu
+   */
+  checkvcode = verifycode => {
+    const { token, cookie, codestring, traceid } = this
+    return checkvcode({
+      codestring,
+      token,
+      verifycode,
+      traceid,
+      Cookie: cookie.getStr(['BAIDUID', 'UBI'])
+    }).then(json => {
+      if (json.errInfo.no === '0') {
+        console.log('验证成功')
+      } else {
+        throw new Error('验证码错误')
+      }
+    })
+  }
+
+  reggetcodestr = () => {
+    const { token, cookie, traceid, vcodetype } = this
+    return reggetcodestr({ token, Cookie: cookie.getStr(['BAIDUID', 'UBI']), traceid, vcodetype })
+  }
   /**
    * 登陆
    *
@@ -138,20 +210,7 @@ class Baidu {
       tempTime,
       isInit
     } = this
-    // this.password = password
-    const promis = Promise.resolve(1)
-    if (codestring !== '') {
-      promis.then(() =>
-        checkvcode({
-          codestring,
-          token,
-          verifycode,
-          traceid,
-          Cookie: cookie.getStr(['BAIDUID', 'UBI'])
-        })
-      )
-    }
-    return promis
+    return Promise.resolve()
       .then(
         () =>
           new Promise(resolve => {
@@ -184,8 +243,13 @@ class Baidu {
           codestring,
           verifycode,
           traceid
-        }).then(({ cookie: tempCookie }) => {
-          cookie.update(tempCookie)
+        }).then(({ cookie: tempCookie, body }) => {
+          const err = body.match(/err_no=([\d]+?)&/)
+          if (err && err[1] === '0') {
+            console.log('登陆成功')
+            cookie.update(tempCookie)
+          }
+          throw new Error(`登陆错误,错误代码:${err[1]}`)
         })
       )
       .then(() =>
@@ -297,6 +361,7 @@ class Baidu {
                 directorys.map(dir =>
                   // console.log('dir', dir)
                   list({ directory: dir.path }).then(v => {
+                    // eslint-disable-next-line no-param-reassign
                     dir.children = v
                     return v
                   })

@@ -8,6 +8,7 @@ module.exports = {
       experimentalObjectRestSpread: true
     }
   },
+  env: { jest: true },
   extends: ['airbnb-base', 'prettier'],
   plugins: ['prettier', 'babel'],
   rules: {
@@ -17,6 +18,6 @@ module.exports = {
     'babel/no-invalid-this': 1,
     'babel/no-unused-expressions': 1,
     'babel/valid-typeof': 1,
-    'no-await-in-loop': 0
+    'no-await-in-loop': 0 //允许在循环中使用await
   }
 }

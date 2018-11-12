@@ -26,11 +26,12 @@ const getToken = ({ gid, Cookie }) => {
     }
   })
     .then(({ res }) => res.text())
-    .then(body => {
-      const {
-        data: { token }
-      } = JSON.parse(body.replace(/'/g, '"'))
-      return token
-    })
+    .then(
+      body => body
+      // const {
+      //   data: { token }
+      // } = JSON.parse(body.replace(/'/g, '"'))
+      // return token
+    )
 }
 export default getToken

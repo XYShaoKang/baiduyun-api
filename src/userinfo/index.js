@@ -1,3 +1,3 @@
-import getUserInfo from './getUserInfo'
+import getUserInfo from './get-userInfo'
 
 export { getUserInfo }
