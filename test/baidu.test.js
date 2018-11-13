@@ -14,7 +14,7 @@ it('TESTVALUE2', () => {
   expect(test.TESTVALUE2 === 'test').toBe(true)
 })
 it('TESTVALUE3', () => {
-  expect(test.TESTVALUE3 === 123456).toBe(true)
+  expect(test.TESTVALUE3 === '123456').toBe(true)
 })
 
 console.log(test)
