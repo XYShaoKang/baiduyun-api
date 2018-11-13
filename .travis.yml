@@ -7,6 +7,7 @@ brancher:
     - 'dev'
     - 'master'
 install:
+  - 'yarn install'
   - 'yarn global add codecov'
 script:
   - 'yarn test'
