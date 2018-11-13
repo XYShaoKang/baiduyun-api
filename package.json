@@ -5,7 +5,7 @@
     "scripts": {
         "start": "babel-node ./examples/demo.js",
         "temp": "babel-node ./examples/temp.js",
-        "test": "jest && codecov",
+        "test": "jest",
         "compile": "babel src --out-dir .compiled --source-maps --watch",
         "build": "babel src --copy-files --source-maps --extensions .js --out-dir build"
     },

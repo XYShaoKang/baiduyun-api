@@ -52,9 +52,9 @@ function waitForInit(target, name, descriptor) {
  */
 
 class Baidu {
-  constructor() {
-    this.init()
-  }
+  // constructor() {
+  //   this.init()
+  // }
 
   /**
    * 登陆参数初始化
@@ -217,7 +217,7 @@ class Baidu {
             const timer = setInterval(() => {
               if (isInit) {
                 clearInterval(timer)
-                resolve(10000 - (Date.parse(new Date()) - tempTime))
+                resolve(11000 - (Date.parse(new Date()) - tempTime))
               }
             }, 100)
           })
@@ -248,8 +248,9 @@ class Baidu {
           if (err && err[1] === '0') {
             console.log('登陆成功')
             cookie.update(tempCookie)
+          } else {
+            throw new Error(`登陆错误,错误代码:${err[1]}`)
           }
-          throw new Error(`登陆错误,错误代码:${err[1]}`)
         })
       )
       .then(() =>
@@ -273,6 +274,7 @@ class Baidu {
       )
       .then(() => {
         this.isLogin = true
+        return true
       })
   }
 
@@ -286,8 +288,9 @@ class Baidu {
       if (body.errno === 0) {
         this.isLogin = true
       } else {
-        console.log('百度账号未登录')
         this.isLogin = false
+        // console.log('百度账号未登录')
+        throw new Error(`百度账号未登录,无法获取账号信息`)
       }
       return body
     })
