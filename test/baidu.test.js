@@ -13,8 +13,8 @@ if (!process.env.BAIDUUSERNAME || !process.env.BAIDUPASSWORD) {
 }
 
 const loginInfo = {
-  username: process.env.BAIDUUSERNAME.replace(/^'|'$/g, ''),
-  password: process.env.BAIDUPASSWORD.replace(/^'|'$/g, '')
+  username: process.env.BAIDUUSERNAME,
+  password: process.env.BAIDUPASSWORD
 }
 jest.setTimeout(30000)
 describe('初始化测试', () => {
