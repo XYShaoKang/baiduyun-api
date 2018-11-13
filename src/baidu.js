@@ -39,12 +39,25 @@ function waitForInit(target, name, descriptor) {
         if (this.initErr) {
           reject(this.initErr)
         }
-      }, 1000)
+      }, 100)
     }).then(() => oldValue.apply(this, args))
   }
   return { ...descriptor, value }
 }
 
+function isLogin(target, name, descriptor) {
+  const oldValue = descriptor.value
+  const value = function value(...args) {
+    return new Promise((resolve, reject) => {
+      if (this.isLogin) {
+        resolve()
+      } else {
+        reject(new Error('账号未登录'))
+      }
+    }).then(() => oldValue.apply(this, args))
+  }
+  return { ...descriptor, value }
+}
 /**
  * Baidu类,包含初始化参数,登陆,
  *
@@ -283,6 +296,8 @@ class Baidu {
    *
    * @memberof Baidu
    */
+  @autobind
+  @isLogin
   getUserInfo = () =>
     getUserInfo({ Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']) }).then(body => {
       if (body.errno === 0) {
@@ -312,6 +327,8 @@ class Baidu {
    * @returns {Promise<[Object]>} Promise返回文件目录列表
    * @memberof Baidu
    */
+  @autobind
+  @isLogin
   list = ({ directory, page = 1, num = 1000 }) =>
     getList({
       path: directory,
@@ -338,6 +355,8 @@ class Baidu {
    * @returns {Promise<[Object]>} Promise返回文件目录列表
    * @memberof Baidu
    */
+  @autobind
+  @isLogin
   allList = async ({ directory }) => {
     const { list } = this
     const thread = 30
