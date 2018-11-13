@@ -4,8 +4,19 @@ import Baidu from '../src/baidu'
 
 const test = {
   TESTVALUE1: process.env.TESTVALUE1,
-  TESTVALUE2: process.env.TESTVALUE2
+  TESTVALUE2: process.env.TESTVALUE2,
+  TESTVALUE3: process.env.TESTVALUE3
 }
+test('TESTVALUE1', () => {
+  expect(test.TESTVALUE1 === 'test').toBe(true)
+})
+test('TESTVALUE2', () => {
+  expect(test.TESTVALUE2 === 'test').toBe(true)
+})
+test('TESTVALUE3', () => {
+  expect(test.TESTVALUE3 === 123456).toBe(true)
+})
+
 console.log(test)
 if (fs.existsSync('../.env')) {
   env2('.env')
