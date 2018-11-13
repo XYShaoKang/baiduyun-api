@@ -1,40 +1,44 @@
 {
-  "name": "baiduyun-api",
-  "version": "1.0.0",
-  "main": "./build",
-  "scripts": {
-    "start": "babel-node ./examples/demo.js",
-    "temp": "babel-node ./examples/temp.js",
-    "test": "jest --coverage",
-    "compile": "babel src --out-dir .compiled --source-maps --watch",
-    "build": "babel src --copy-files --source-maps --extensions .js --out-dir build"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.5",
-    "@babel/node": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-decorators": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "eslint": "^5.8.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^3.1.0",
-    "eslint-plugin-babel": "^5.2.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^23.6.0",
-    "prettier": "^1.14.3",
-    "regenerator-runtime": "^0.12.1"
-  },
-  "dependencies": {
-    "app-root-path": "^2.1.0",
-    "core-decorators": "^0.20.0",
-    "node-fetch": "^2.2.0",
-    "node-rsa": "^1.0.1"
-  }
+    "name": "baiduyun-api",
+    "version": "1.0.0",
+    "main": "./build",
+    "scripts": {
+        "start": "babel-node ./examples/demo.js",
+        "temp": "babel-node ./examples/temp.js",
+        "test": "jest && codecov",
+        "compile": "babel src --out-dir .compiled --source-maps --watch",
+        "build": "babel src --copy-files --source-maps --extensions .js --out-dir build"
+    },
+    "license": "MIT",
+    "jest": {
+        "coverageDirectory": "./coverage/",
+        "collectCoverage": true
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.1.2",
+        "@babel/core": "^7.1.5",
+        "@babel/node": "^7.0.0",
+        "@babel/plugin-proposal-class-properties": "^7.1.0",
+        "@babel/plugin-proposal-decorators": "^7.1.2",
+        "@babel/preset-env": "^7.1.0",
+        "babel-core": "7.0.0-bridge.0",
+        "babel-eslint": "^10.0.1",
+        "babel-jest": "^23.6.0",
+        "eslint": "^5.8.0",
+        "eslint-config-airbnb": "^17.1.0",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-config-prettier": "^3.1.0",
+        "eslint-plugin-babel": "^5.2.1",
+        "eslint-plugin-import": "^2.14.0",
+        "eslint-plugin-prettier": "^3.0.0",
+        "jest": "^23.6.0",
+        "prettier": "^1.14.3",
+        "regenerator-runtime": "^0.12.1"
+    },
+    "dependencies": {
+        "app-root-path": "^2.1.0",
+        "core-decorators": "^0.20.0",
+        "node-fetch": "^2.2.0",
+        "node-rsa": "^1.0.1"
+    }
 }

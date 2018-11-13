@@ -4,7 +4,10 @@ node_js:
   - '10'
 brancher:
   only:
-    - "dev"
-    - "master"
+    - 'dev'
+    - 'master'
+install:
+  - 'yarn global add codecov'
 script:
-  - "yarn test"
+  - 'yarn test'
+  - 'codecov'
