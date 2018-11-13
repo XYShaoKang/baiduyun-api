@@ -4,7 +4,11 @@ const loginInfo = {
   username: '',
   password: ''
 }
-describe.skip('初始化测试', () => {
+if (process.env.CI && process.env.TRAVIS) {
+  loginInfo.username = process.env.USERNAME
+  loginInfo.password = process.env.PASSWORD
+}
+describe('初始化测试', () => {
   jest.setTimeout(30000)
   const baidu = new Baidu()
   beforeAll(async () => {
@@ -42,7 +46,7 @@ describe.skip('初始化测试', () => {
   })
 })
 
-describe.skip('登陆测试', () => {
+describe('登陆测试', () => {
   const baidu = new Baidu()
   beforeAll(() => baidu.init())
   test('test logincheck', async () => {
@@ -59,7 +63,7 @@ describe.skip('登陆测试', () => {
   })
 })
 
-describe.skip('获取信息测试', () => {
+describe('获取信息测试', () => {
   const baidu = new Baidu()
   beforeAll(() =>
     baidu
@@ -72,8 +76,4 @@ describe.skip('获取信息测试', () => {
   test('test list', async () => {
     await expect(baidu.list({ directory: '/' }).then(list => list.length >= 0)).resolves.toBe(true)
   })
-})
-describe('测试环境变量', () => {
-  console.log(process.env.test)
-  expect(process.env.test.length > 0).toBe(true)
 })
