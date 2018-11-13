@@ -298,17 +298,20 @@ class Baidu {
    */
   @autobind
   @isLogin
-  getUserInfo = () =>
-    getUserInfo({ Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']) }).then(body => {
-      if (body.errno === 0) {
-        this.isLogin = true
-      } else {
-        this.isLogin = false
-        // console.log('百度账号未登录')
-        throw new Error(`百度账号未登录,无法获取账号信息`)
+  getUserInfo() {
+    return getUserInfo({ Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']) }).then(
+      body => {
+        if (body.errno === 0) {
+          this.isLogin = true
+        } else {
+          this.isLogin = false
+          // console.log('百度账号未登录')
+          throw new Error(`百度账号未登录,无法获取账号信息`)
+        }
+        return body
       }
-      return body
-    })
+    )
+  }
 
   exprotBaidu = () => ({ cookies: this.cookie.getArray() })
 
@@ -329,8 +332,8 @@ class Baidu {
    */
   @autobind
   @isLogin
-  list = ({ directory, page = 1, num = 1000 }) =>
-    getList({
+  list({ directory, page = 1, num = 1000 }) {
+    return getList({
       path: directory,
       page,
       Cookie: this.cookie.getStr([`BDUSS`, `STOKEN`]),
@@ -345,6 +348,7 @@ class Baidu {
         return fileList
       })
     })
+  }
 
   // TODO 尝试优化遍历获取过程
   /**
@@ -357,7 +361,7 @@ class Baidu {
    */
   @autobind
   @isLogin
-  allList = async ({ directory }) => {
+  async allList({ directory }) {
     const { list } = this
     const thread = 30
     const fileList = await list({ directory })

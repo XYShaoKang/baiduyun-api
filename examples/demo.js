@@ -23,9 +23,9 @@ if (fs.existsSync(jsonPath)) {
     // baidu = JSON.parse(baiduJson)
   })
 } else {
-  const { logincheck, genimage, login, getUserInfo, checkvcode } = baidu
+  const { init, logincheck, genimage, login, getUserInfo, checkvcode } = baidu
   promises = promises
-    // .then(() => init())
+    .then(() => init())
     .then(
       () =>
         new Promise(resolve => {

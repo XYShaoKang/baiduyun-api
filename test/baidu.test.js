@@ -1,16 +1,23 @@
+import env2 from 'env2'
+import fs from 'fs'
 import Baidu from '../src/baidu'
 
+if (fs.existsSync('../.env')) {
+  env2('.env')
+}
+
+if (!process.env.BAIDUUSERNAME || !process.env.BAIDUPASSWORD) {
+  throw new Error(
+    '没有设置环境变量,复制或重命名 .env.default 文件为 .env 文件,替换 *** 为可正常登陆的百度账号密码,测试未做验证码之类的处理'
+  )
+}
+
 const loginInfo = {
-  username: '',
-  password: ''
+  username: process.env.BAIDUUSERNAME.replace(/^'|'$/g, ''),
+  password: process.env.BAIDUPASSWORD.replace(/^'|'$/g, '')
 }
-console.log(process.env.CI && process.env.TRAVIS)
-if (process.env.CI && process.env.TRAVIS) {
-  loginInfo.username = process.env.USERNAME
-  loginInfo.password = process.env.PASSWORD
-}
-describe.skip('初始化测试', () => {
-  jest.setTimeout(30000)
+jest.setTimeout(30000)
+describe('初始化测试', () => {
   const baidu = new Baidu()
   beforeAll(async () => {
     await baidu.init()
@@ -45,11 +52,6 @@ describe.skip('初始化测试', () => {
     // c0327d77d9de85804d2c926a98b763dc
     expect(baidu.rsakey).toMatch(/^\w{32}$/)
   })
-})
-
-describe('登陆测试', () => {
-  const baidu = new Baidu()
-  beforeAll(() => baidu.init())
   test('test logincheck', async () => {
     // object: {"codestring": "", "traceid": "", "vcodetype": ""}
     await expect(baidu.logincheck(loginInfo.username)).resolves.toMatchObject({
@@ -58,9 +60,16 @@ describe('登陆测试', () => {
       vcodetype: expect.any(String)
     })
   })
+})
+
+describe('登陆测试', () => {
+  const baidu = new Baidu()
+  beforeAll(() => baidu.init())
   test('test login', async () => {
     // true
-    await expect(baidu.login(loginInfo.password)).resolves.toBe(true)
+    await expect(
+      baidu.logincheck(loginInfo.username).then(() => baidu.login(loginInfo.password))
+    ).resolves.toBe(true)
   })
 })
 
