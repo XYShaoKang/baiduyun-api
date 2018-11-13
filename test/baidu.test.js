@@ -7,13 +7,13 @@ const test = {
   TESTVALUE2: process.env.TESTVALUE2,
   TESTVALUE3: process.env.TESTVALUE3
 }
-test('TESTVALUE1', () => {
+it('TESTVALUE1', () => {
   expect(test.TESTVALUE1 === 'test').toBe(true)
 })
-test('TESTVALUE2', () => {
+it('TESTVALUE2', () => {
   expect(test.TESTVALUE2 === 'test').toBe(true)
 })
-test('TESTVALUE3', () => {
+it('TESTVALUE3', () => {
   expect(test.TESTVALUE3 === 123456).toBe(true)
 })
 
