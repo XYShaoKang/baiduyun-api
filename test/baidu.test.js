@@ -2,7 +2,7 @@ import env2 from 'env2'
 import fs from 'fs'
 import Baidu from '../src/baidu'
 
-if (fs.existsSync('../.env')) {
+if (fs.existsSync('.env')) {
   env2('.env')
 }
 
@@ -13,8 +13,8 @@ if (!process.env.BAIDUUSERNAME || !process.env.BAIDUPASSWORD) {
 }
 
 const loginInfo = {
-  username: process.env.BAIDUUSERNAME,
-  password: process.env.BAIDUPASSWORD
+  username: process.env.BAIDUUSERNAME.replace(/^"|"$/g, ''),
+  password: process.env.BAIDUPASSWORD.replace(/^"|"$/g, '')
 }
 jest.setTimeout(30000)
 describe('初始化测试', () => {
