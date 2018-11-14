@@ -8,15 +8,15 @@ if (fs.existsSync('.env')) {
   env2('.env')
 }
 
-if (!process.env.BAIDUUSERNAME || !process.env.BAIDUPASSWORD) {
+if (!process.env.BAIDU_USERNAME || !process.env.BAIDU_PASSWORD) {
   throw new Error(
     '没有设置环境变量,复制或重命名 .env.default 文件为 .env 文件,替换 *** 为可正常登陆的百度账号密码,测试未做验证码之类的处理'
   )
 }
 
 const loginInfo = {
-  username: process.env.BAIDUUSERNAME.replace(/^"|"$/g, ''),
-  password: process.env.BAIDUPASSWORD.replace(/^"|"$/g, '')
+  username: process.env.BAIDU_USERNAME.replace(/^"|"$/g, ''),
+  password: process.env.BAIDU_PASSWORD.replace(/^"|"$/g, '')
 }
 jest.setTimeout(30000)
 // describe('初始化测试', () => {
@@ -85,17 +85,7 @@ describe('登陆测试', () => {
                     })
                   })
               )
-              .then(imgPath =>
-                getVercode(imgPath).then(json => {
-                  const { error_code, result } = json
-                  if (error_code === 0) {
-                    console.log(result)
-                    return result
-                  }
-                  console.log(json.error_code)
-                  throw new Error('验证码获取错误')
-                })
-              )
+              .then(imgPath => getVercode(imgPath))
               .then(verifycode => baidu.checkvcode(verifycode).then(() => verifycode))
           }
           return ''
