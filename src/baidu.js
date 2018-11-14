@@ -230,7 +230,7 @@ class Baidu {
             const timer = setInterval(() => {
               if (isInit) {
                 clearInterval(timer)
-                resolve(11000 - (Date.parse(new Date()) - tempTime))
+                resolve(15000 - (Date.parse(new Date()) - tempTime))
               }
             }, 100)
           })
