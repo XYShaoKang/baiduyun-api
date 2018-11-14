@@ -7,7 +7,5 @@ node_modules/
 
 .compiled
 
-examples/demo-cache
-
 coverage/
 .env

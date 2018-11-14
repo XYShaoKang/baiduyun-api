@@ -49,7 +49,7 @@ if (fs.existsSync(jsonPath)) {
                 const imgPath = path.join(cache, './test.png')
                 image.pipe(fs.createWriteStream(imgPath)).on('close', () => {
                   console.log(`验证码下载完毕,打开: ${imgPath} 查看验证码`)
-                  resolve()
+                  resolve(imgPath)
                 })
               })
           )
