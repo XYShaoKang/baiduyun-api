@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/XYShaoKang/baiduyun-api.svg?branch=master)](https://travis-ci.org/XYShaoKang/baiduyun-api)
 [![codecov](https://codecov.io/gh/XYShaoKang/baiduyun-api/branch/master/graph/badge.svg)](https://codecov.io/gh/XYShaoKang/baiduyun-api)
+[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
 基于百度网盘网页版 api 的 js 封装
 

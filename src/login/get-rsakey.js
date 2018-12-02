@@ -17,7 +17,7 @@ const getRsakey = ({ token, gid, Cookie }) => {
     apiver: 'v3',
     tt: new Date().valueOf(),
     gid,
-    loginversion: 'v4'
+    loginversion: 'v4',
   }
   const url = `https://passport.baidu.com/v2/getpublickey?`
   return get({ url, Cookie, opt })

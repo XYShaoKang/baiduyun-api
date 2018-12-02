@@ -22,8 +22,8 @@ const getToken = ({ gid, Cookie }) => {
       class: 'login',
       gid,
       loginversion: 'v4',
-      logintype: 'basicLogin'
-    }
+      logintype: 'basicLogin',
+    },
   })
     .then(({ res }) => res.text())
     .then(

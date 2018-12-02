@@ -23,13 +23,13 @@ const logincheck = ({ token, username, dv, Cookie, traceid }) => {
     username,
     loginversion: 'v4',
     dv,
-    traceid
+    traceid,
   }
   const url = `https://passport.baidu.com/v2/api/?logincheck&`
   return get({
     url,
     Cookie,
-    opt
+    opt,
   })
     .then(({ res, cookies }) => {
       ubi = cookies.map(c => c.split(';')[0]).find(c => c.includes('UBI'))

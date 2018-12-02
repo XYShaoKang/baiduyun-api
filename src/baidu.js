@@ -13,7 +13,7 @@ import {
   reggetcodestr,
   getRedirectUrl,
   updateStoken,
-  login
+  login,
 } from './login'
 import Cookie from './tools/cookie'
 import { getList } from './list'
@@ -87,31 +87,55 @@ class Baidu {
     const { gid, cookie } = this
     return getBaiduId()
       .then(baiduIdCookieStr => {
-        cookie.update(baiduIdCookieStr)
+        if (baiduIdCookieStr.length > 0) {
+          cookie.update(baiduIdCookieStr)
+        } else {
+          throw new Error('baiduId 为空')
+        }
         return getToken({ gid, Cookie: cookie.getStr(['BAIDUID']) })
       })
       .then(body => {
         try {
           const {
-            data: { token }
+            data: { token },
           } = JSON.parse(body.replace(/'/g, '"'))
+          if (!token) {
+            throw new Error('token 为空')
+          }
           return token
         } catch (error) {
-          throw new Error('解析token错误')
+          throw new Error('解析 token 错误')
         }
       })
       .then(token => {
         this.token = token
         return token
       })
-      .then(token => loginhistory({ gid, token, Cookie: cookie.getStr(['BAIDUID']) }))
+      .then(token =>
+        loginhistory({ gid, token, Cookie: cookie.getStr(['BAIDUID']) })
+      )
       .then(ubiCookieStr => {
-        cookie.update(ubiCookieStr)
+        if (ubiCookieStr.length > 0) {
+          cookie.update(ubiCookieStr)
+        } else {
+          throw new Error('ubi 为空')
+        }
       })
-      .then(() => getRsakey({ token: this.token, gid, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }))
+      .then(() =>
+        getRsakey({
+          token: this.token,
+          gid,
+          Cookie: cookie.getStr(['BAIDUID', 'UBI']),
+        })
+      )
       .then(body => {
         try {
-          const { pubkey, key: rsakey, traceid } = JSON.parse(body.replace(/'/g, '"'))
+          const { pubkey, key: rsakey, traceid } = JSON.parse(
+            body.replace(/'/g, '"')
+          )
+          if (!rsakey || !pubkey) {
+            throw new Error('rsakey 或 pubkey 为空')
+          }
           return { rsakey, pubkey, traceid }
         } catch (error) {
           throw new Error('解析密钥错误')
@@ -148,7 +172,7 @@ class Baidu {
       token,
       username,
       dv,
-      traceid
+      traceid,
     }).then(({ ubi, data, traceid: traceidTemp }) => {
       cookie.update(ubi)
       this.codestring = data.codeString
@@ -157,7 +181,7 @@ class Baidu {
       return {
         traceid,
         codestring: data.codeString,
-        vcodetype: data.vcodetype
+        vcodetype: data.vcodetype,
       }
     })
   }
@@ -169,8 +193,11 @@ class Baidu {
    */
   genimage = () => {
     const { cookie, codestring } = this
-    return genimage({ codestring, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }).then(image => ({
-      image
+    return genimage({
+      codestring,
+      Cookie: cookie.getStr(['BAIDUID', 'UBI']),
+    }).then(image => ({
+      image,
     }))
   }
 
@@ -186,7 +213,7 @@ class Baidu {
       token,
       verifycode,
       traceid,
-      Cookie: cookie.getStr(['BAIDUID', 'UBI'])
+      Cookie: cookie.getStr(['BAIDUID', 'UBI']),
     }).then(json => {
       if (json.errInfo.no === '0') {
         console.log('验证成功')
@@ -198,7 +225,12 @@ class Baidu {
 
   reggetcodestr = () => {
     const { token, cookie, traceid, vcodetype } = this
-    return reggetcodestr({ token, Cookie: cookie.getStr(['BAIDUID', 'UBI']), traceid, vcodetype })
+    return reggetcodestr({
+      token,
+      Cookie: cookie.getStr(['BAIDUID', 'UBI']),
+      traceid,
+      vcodetype,
+    })
   }
   /**
    * 登陆
@@ -221,7 +253,7 @@ class Baidu {
       codestring,
       traceid,
       tempTime,
-      isInit
+      isInit,
     } = this
     return Promise.resolve()
       .then(
@@ -235,15 +267,7 @@ class Baidu {
             }, 100)
           })
       )
-      .then(
-        delayTime =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve()
-            }, delayTime)
-          })
-      )
-      .then(() =>
+      .then(delayTime =>
         login({
           token,
           dv,
@@ -255,11 +279,11 @@ class Baidu {
           Cookie: cookie.getStr(['BAIDUID', 'UBI']),
           codestring,
           verifycode,
-          traceid
+          traceid,
+          delayTime,
         }).then(({ cookie: tempCookie, body }) => {
           const err = body.match(/err_no=([\d]+?)&/)
           if (err && err[1] === '0') {
-            console.log('登陆成功')
             cookie.update(tempCookie)
           } else {
             throw new Error(`登陆错误,错误代码:${err[1]}`)
@@ -275,14 +299,15 @@ class Baidu {
             'PTOKEN',
             'SAVEUSERID',
             'STOKEN',
-            'UBI'
-          ])
+            'UBI',
+          ]),
         }).then(({ redirectUrl }) =>
-          updateStoken({ redirectUrl, Cookie: cookie.getStr(['BAIDUID', 'BDUSS']) }).then(
-            STOKEN => {
-              cookie.update(STOKEN)
-            }
-          )
+          updateStoken({
+            redirectUrl,
+            Cookie: cookie.getStr(['BAIDUID', 'BDUSS']),
+          }).then(STOKEN => {
+            cookie.update(STOKEN)
+          })
         )
       )
       .then(() => {
@@ -299,18 +324,18 @@ class Baidu {
   @autobind
   @isLogin
   getUserInfo() {
-    return getUserInfo({ Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']) }).then(
-      body => {
-        if (body.errno === 0) {
-          this.isLogin = true
-        } else {
-          this.isLogin = false
-          // console.log('百度账号未登录')
-          throw new Error(`百度账号未登录,无法获取账号信息`)
-        }
-        return body
+    return getUserInfo({
+      Cookie: this.cookie.getStr(['BAIDUID', 'BDUSS', 'STOKEN']),
+    }).then(body => {
+      if (body.errno === 0) {
+        this.isLogin = true
+      } else {
+        this.isLogin = false
+        // console.log('百度账号未登录')
+        throw new Error(`百度账号未登录,无法获取账号信息`)
       }
-    )
+      return body
+    })
   }
 
   exprotBaidu = () => ({ cookies: this.cookie.getArray() })
@@ -337,7 +362,7 @@ class Baidu {
       path: directory,
       page,
       Cookie: this.cookie.getStr([`BDUSS`, `STOKEN`]),
-      num
+      num,
     }).then(body => {
       const fileList = body.list
       if (fileList.length < num) {
@@ -398,7 +423,7 @@ class Baidu {
                   ...v.reduce((a, b) => {
                     a.push(...b)
                     return a
-                  }, [])
+                  }, []),
                 ])
                 .then(v => v.filter(f => f.isdir === 1))
             ),

@@ -10,14 +10,13 @@ import {
   getRsakey,
   genimage,
   checkvcode,
+  // eslint-disable-next-line no-unused-vars
   reggetcodestr,
+  login,
   getRedirectUrl,
   updateStoken,
-  getUserInfo,
-  getList
 } from './index'
-import Cookie from '../tools/Cookie'
-import login from '../login'
+import Cookie from '../tools/cookie'
 
 const gid = getGid()
 const dv = getdv()
@@ -27,20 +26,24 @@ getBaiduId()
   .then(baiduIdCookieStr => {
     const cookie = new Cookie()
     cookie.update(baiduIdCookieStr)
-    return getToken({ gid, Cookie: cookie.getStr([`BAIDUID`]) }).then(token => ({
-      gid,
-      cookie,
-      token
-    }))
+    return getToken({ gid, Cookie: cookie.getStr([`BAIDUID`]) }).then(
+      token => ({
+        gid,
+        cookie,
+        token,
+      })
+    )
   })
   .then(({ cookie, token }) =>
-    loginhistory({ gid, token, Cookie: cookie.getStr(['BAIDUID']) }).then(ubiCookieStr => {
-      cookie.update(ubiCookieStr)
-      return {
-        cookie,
-        token
+    loginhistory({ gid, token, Cookie: cookie.getStr(['BAIDUID']) }).then(
+      ubiCookieStr => {
+        cookie.update(ubiCookieStr)
+        return {
+          cookie,
+          token,
+        }
       }
-    })
+    )
   )
   .then(({ token, cookie }) =>
     getRsakey({ token, gid, Cookie: cookie.getStr(['BAIDUID', 'UBI']) }).then(
@@ -49,7 +52,7 @@ getBaiduId()
         cookie,
         rsakey,
         pubkey,
-        traceid
+        traceid,
       })
     )
   )
@@ -59,7 +62,7 @@ getBaiduId()
       token,
       username,
       dv,
-      traceid
+      traceid,
     }).then(({ ubi, data }) => {
       cookie.update(ubi)
       return {
@@ -69,10 +72,11 @@ getBaiduId()
         pubkey,
         traceid,
         codestring: data.codeString,
-        vcodetype: data.vcodetype
+        vcodetype: data.vcodetype,
       }
     })
   )
+  // eslint-disable-next-line no-unused-vars
   .then(({ token, cookie, rsakey, pubkey, codestring, traceid, vcodetype }) => {
     if (codestring !== '') {
       return (
@@ -82,15 +86,17 @@ getBaiduId()
               new Promise(resolve => {
                 const rl = readline.createInterface({
                   input: process.stdin,
-                  output: process.stdout
+                  output: process.stdout,
                 })
-                image.body.pipe(fs.createWriteStream('./cache/test.png')).on('close', () => {
-                  console.log('image downloaded')
-                  rl.question('请输入验证码: ', verifycode => {
-                    rl.close()
-                    resolve({ verifycode })
+                image.body
+                  .pipe(fs.createWriteStream('./cache/test.png'))
+                  .on('close', () => {
+                    console.log('image downloaded')
+                    rl.question('请输入验证码: ', verifycode => {
+                      rl.close()
+                      resolve({ verifycode })
+                    })
                   })
-                })
               })
           )
           // .then(() =>
@@ -126,7 +132,7 @@ getBaiduId()
               token,
               verifycode,
               traceid,
-              Cookie: cookie.getStr(['BAIDUID', 'UBI'])
+              Cookie: cookie.getStr(['BAIDUID', 'UBI']),
             }).then(() => ({
               token,
               cookie,
@@ -134,7 +140,7 @@ getBaiduId()
               pubkey,
               codestring,
               verifycode,
-              traceid
+              traceid,
             }))
           )
       )
@@ -146,7 +152,7 @@ getBaiduId()
       pubkey,
       codestring,
       traceid,
-      verifycode: ''
+      verifycode: '',
     }
   })
   .then(
@@ -160,7 +166,7 @@ getBaiduId()
             pubkey,
             codestring,
             verifycode,
-            traceid
+            traceid,
           })
         }, 10000)
       })
@@ -177,7 +183,7 @@ getBaiduId()
       Cookie: cookie.getStr(['BAIDUID', 'UBI']),
       codestring,
       verifycode,
-      traceid
+      traceid,
     }).then(({ cookie: tempCookie }) => {
       cookie.update(tempCookie)
       return { cookie }
@@ -192,17 +198,22 @@ getBaiduId()
         `PTOKEN`,
         `SAVEUSERID`,
         `STOKEN`,
-        `UBI`
-      ])
+        `UBI`,
+      ]),
     }).then(({ redirectUrl }) =>
-      updateStoken({ redirectUrl, Cookie: cookie.getStr([`BAIDUID`, `BDUSS`]) }).then(STOKEN => {
+      updateStoken({
+        redirectUrl,
+        Cookie: cookie.getStr([`BAIDUID`, `BDUSS`]),
+      }).then(STOKEN => {
         cookie.update(STOKEN)
         return { cookie }
       })
     )
   )
   // .then(({ cookie }) => getUserInfo({ Cookie: cookie.getStr([`BAIDUID`, `BDUSS`, `STOKEN`]) }))
-  .then(({ cookie }) => getList('/', 1, { Cookie: cookie.getStr([`BDUSS`, `STOKEN`]) }))
+  // .then(({ cookie }) =>
+  //   getList('/', 1, { Cookie: cookie.getStr([`BDUSS`, `STOKEN`]) })
+  // )
   .then(console.log)
   .catch(err => {
     console.log('err2', err)

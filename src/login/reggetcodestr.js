@@ -21,7 +21,7 @@ const reggetcodestr = ({ token, Cookie, traceid, vcodetype }) => {
     sub_source: 'leadsetpwd',
     loginversion: 'v4',
     traceid,
-    vcodetype
+    vcodetype,
   }
   const url = `https://passport.baidu.com/v2/?reggetcodestr&$`
   return get({ url, Cookie, opt })

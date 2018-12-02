@@ -21,19 +21,10 @@ const checkvcode = ({ codestring, token, verifycode, Cookie, traceid }) => {
     verifycode,
     loginversion: 'v4',
     codestring,
-    traceid
+    traceid,
   }
   const url = `https://passport.baidu.com/v2/?checkvcode&`
-  return get({ url, Cookie, opt })
-    .then(({ res }) => res.json())
-    .then(
-      json => json
-      // if (json.errInfo.no === '0') {
-      //   console.log('验证成功')
-      // } else {
-      //   throw new Error('验证码错误')
-      // }
-    )
+  return get({ url, Cookie, opt }).then(({ res }) => res.json())
 }
 
 export default checkvcode

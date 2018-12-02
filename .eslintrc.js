@@ -5,8 +5,8 @@ module.exports = {
     sourceType: 'module',
     ecmaFeatures: {
       modules: true,
-      experimentalObjectRestSpread: true
-    }
+      experimentalObjectRestSpread: true,
+    },
   },
   env: { jest: true },
   extends: ['airbnb-base', 'prettier'],
@@ -18,6 +18,6 @@ module.exports = {
     'babel/no-invalid-this': 1,
     'babel/no-unused-expressions': 1,
     'babel/valid-typeof': 1,
-    'no-await-in-loop': 0 //允许在循环中使用await
-  }
+    'no-await-in-loop': 0, //允许在循环中使用await
+  },
 }

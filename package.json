@@ -4,15 +4,24 @@
     "main": "./build",
     "scripts": {
         "start": "babel-node ./examples/demo.js",
-        "temp": "babel-node ./examples/temp.js",
         "test": "jest",
+        "watch": "jest --watchAll",
         "compile": "babel src --out-dir .compiled --source-maps --watch",
         "build": "babel src --copy-files --source-maps --extensions .js --out-dir build"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/XYShaoKang/baiduyun-api.git"
+    },
+    "author": "XYShaoKang",
     "license": "MIT",
     "jest": {
         "coverageDirectory": "./coverage/",
-        "collectCoverage": true
+        "collectCoverage": true,
+        "coverageReporters": [
+            "json",
+            "html"
+        ]
     },
     "devDependencies": {
         "@babel/cli": "^7.1.2",

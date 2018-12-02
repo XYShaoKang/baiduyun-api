@@ -11,14 +11,14 @@ const get = ({ url, opt = {}, Cookie = '', redirect }) => {
   })
   return fetch(url + params.toString(), {
     headers: {
-      Cookie
+      Cookie,
     },
-    redirect
+    redirect,
   })
     .then(res => ({ res, cookies: res.headers.raw()['set-cookie'] }))
     .catch(errmiddleware)
 }
-const post = ({ url, opt, Cookie }) => {
+const post = ({ url, opt = {}, Cookie }) => {
   const params = new URLSearchParams()
   Object.keys(opt).forEach(key => {
     params.append(key, opt[key])
@@ -27,9 +27,9 @@ const post = ({ url, opt, Cookie }) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Cookie
+      Cookie,
     },
-    body: params
+    body: params,
   })
     .then(res => ({ res, cookies: res.headers.raw()['set-cookie'] }))
     .catch(errmiddleware)

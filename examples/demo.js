@@ -23,6 +23,7 @@ if (fs.existsSync(jsonPath)) {
     // baidu = JSON.parse(baiduJson)
   })
 } else {
+  // eslint-disable-next-line no-unused-vars
   const { init, logincheck, genimage, login, getUserInfo, checkvcode } = baidu
   promises = promises
     .then(() => init())
@@ -31,7 +32,7 @@ if (fs.existsSync(jsonPath)) {
         new Promise(resolve => {
           const rl = readline.createInterface({
             input: process.stdin,
-            output: process.stdout
+            output: process.stdout,
           })
           rl.question('请输入用户名: ', username => {
             rl.close()
@@ -58,7 +59,7 @@ if (fs.existsSync(jsonPath)) {
               new Promise(resolve => {
                 const rl = readline.createInterface({
                   input: process.stdin,
-                  output: process.stdout
+                  output: process.stdout,
                 })
                 rl.question('请输入验证码: ', verifycode => {
                   rl.close()
@@ -77,13 +78,13 @@ if (fs.existsSync(jsonPath)) {
             write(chunk, encoding, callback) {
               if (!this.muted) process.stdout.write(chunk, encoding)
               callback()
-            }
+            },
           })
           mutableStdout.muted = false
           const rl = readline.createInterface({
             input: process.stdin,
             output: mutableStdout,
-            terminal: true
+            terminal: true,
           })
           rl.question('请输入密码: ', password => {
             rl.close()
@@ -123,6 +124,7 @@ promises
  * @param {*} list
  * @returns
  */
+// eslint-disable-next-line no-unused-vars
 function getListLength(list) {
   return (
     list.length +
@@ -137,8 +139,12 @@ function getListLength(list) {
  * @param {*} list
  * @returns
  */
+// eslint-disable-next-line no-unused-vars
 function getDirLength(list) {
   const dirs = list.filter(d => d.isdir === 1)
 
-  return dirs.length + dirs.reduce((a, b) => a + (b.children ? getDirLength(b.children) : 0), 0)
+  return (
+    dirs.length +
+    dirs.reduce((a, b) => a + (b.children ? getDirLength(b.children) : 0), 0)
+  )
 }

@@ -17,13 +17,15 @@ const loginhistory = ({ token, gid, Cookie }) => {
     apiver: 'v3',
     tt: new Date().valueOf(),
     gid,
-    loginversion: 'v4'
+    loginversion: 'v4',
   }
   const url = `https://passport.baidu.com/v2/api/?loginhistory&`
   return get({
     url,
     Cookie,
-    opt
-  }).then(({ cookies }) => cookies.map(c => c.split(';')[0]).find(c => c.includes('UBI')))
+    opt,
+  }).then(({ cookies }) =>
+    cookies.map(c => c.split(';')[0]).find(c => c.includes('UBI'))
+  )
 }
 export default loginhistory

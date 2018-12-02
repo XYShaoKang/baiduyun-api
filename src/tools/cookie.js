@@ -7,13 +7,13 @@
 
 export default class Cookie {
   constructor() {
-    this.data = [] // 保存cookie,格式{key,value}
+    this.data = [] // 保存cookie,格式[{key,value}]
   }
 
   /**
    * 添加cookie
    *
-   * @param {String} cookie 格式:key=value
+   * @param {Object} cookie 格式:{key,value}
    * @memberof Cookie
    */
 
@@ -64,7 +64,7 @@ export default class Cookie {
   /**
    * 导出cookie字符串
    *
-   * @param {[String]]} arr 需要导出cookie的key数组
+   * @param {[String]} arr 需要导出cookie的key数组
    * @returns {String} 返回cookie字符串
    * @memberof Cookie
    */
